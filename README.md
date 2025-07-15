@@ -16,6 +16,7 @@ This project implements a simple PBX (Private Branch Exchange) system using Flas
 
 Once set up, your project directory will look something like this:
 
+```bash
 /opt/pbx_app/
 ├── venv/ # Python virtual environment
 ├── pbx_script_v3.py # Main Flask application script
@@ -26,7 +27,7 @@ Once set up, your project directory will look something like this:
 │ └── billing/ # Voicemails for billing extension
 │ └── <timestamp><caller><sid>.wav
 └── pbx_app.service # systemd service configuration (lives in /etc/systemd/system)
-
+```
 
 ## Setup Instructions
 
@@ -86,11 +87,13 @@ sudo nano /opt/pbx_app/pbx_script_v3.py
 
 Locate and update the following sections:
 
+```bash
 `SMTP_SERVER`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SENDER_EMAIL`: Your email sending credentials.
 `EXTENSIONS` dictionary:
 For `dial_external` types, update `target` phone numbers to real numbers.
 For `voicemail` types, update `voicemail_recipient_email` to the actual email addresses where you want voicemails sent.
 Save and close the file (Ctrl+O, Enter, Ctrl+X in nano).
+```
 
 ### 5. Create a Dedicated User (Recommended for Security)
 Create a system user that your application will run under. This user won't have login capabilities.
@@ -137,10 +140,12 @@ WantedBy=multi-user.target
 
 ### Explanation of Service File:
 
+```bash
 `ExecStart`: Points to the Gunicorn executable in your virtual environment and specifies to load the `app` object from `pbx_script_v3.py`.
 `Restart=always`: Ensures the service restarts if it crashes.
 `StandardOutput` / `StandardError`: Logs output to journalctl.
 Save and close the file.
+```
 
 ### 8. Enable and Start the Systemd Service
 Now, instruct `systemd` to reload its configuration, enable your new service (so it starts on boot), and then start it immediately.
@@ -174,6 +179,7 @@ ngrok http 5000
 Copy the https:// "Forwarding" URL (e.g., `https://<RANDOM_ID>.ngrok-free.app`).
 
 2 - Configure your Twilio Phone Number:
+```bash
 -Log in to your Twilio Console .
 -Navigate to Phone Numbers > Manage > Active Numbers.
 -Click on the phone number you want to use.
@@ -183,8 +189,11 @@ Copy the https:// "Forwarding" URL (e.g., `https://<RANDOM_ID>.ngrok-free.app`).
 ---Example: `https://<YOUR_NGROK_URL>/incoming_call`
 -Make sure the method is set to HTTP POST.
 -Click Save.
+```
 
 ### 11. Test Your PBX!
+
+```bash
 Call your Twilio phone number.
 -You should hear the dynamic welcome message and the menu options based on your `EXTENSIONS` configuration.
 -Try pressing the digits for `dial_external` extensions (e.g., `101`, `102`, `105`).
@@ -193,11 +202,13 @@ Call your Twilio phone number.
 ---Check your server's `/opt/pbx_app/voicemails/` directory for the audio file.
 ---Check the configured recipient's email inbox for the voicemail.
 -Try pressing the digits for `info_message` extensions (e.g., `104`).
-
+```
 
 ### 12. Managing the Service
+
+```bash
 To stop: sudo systemctl stop pbx_app.service
 To start: sudo systemctl start pbx_app.service
 To restart (after code changes): sudo systemctl restart pbx_app.service
 To disable (stop from starting on boot): sudo systemctl disable pbx_app.service
-
+```
